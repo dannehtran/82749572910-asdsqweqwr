@@ -1,0 +1,74 @@
+#! /usr/bin/env python3
+
+import boto3
+from moto import mock_ec2
+import subprocess
+import sys
+
+# Creates EC2 Instance for Mock Testing
+def CreateEC2Instance(instance_name, region):
+    client = boto3.client('ec2', region)
+    response = client.run_instances(
+        ImageId='ami-0b0ea68c435eb488d',
+        MinCount=1,
+        MaxCount=1,
+        TagSpecifications=[
+            {
+                'ResourceType': 'instance',
+                'Tags': [
+                    {
+                        'Key': 'Name',
+                        'Value': instance_name
+                    },
+                ]
+            },
+        ],
+        )
+
+# Describes the instance using the Name tag as a filter and returns the public IP of the instance
+def DescribeEC2Instance(instance_name, region):
+    client = boto3.client('ec2', region)
+
+    try:
+        response = client.describe_instances(
+            Filters=[
+                {
+                    'Name': 'tag:Name',
+                    'Values': [
+                        instance_name
+                    ]
+                },
+            ],
+        )
+
+        if len(response["Reservations"]) != 0:
+            for instance in response["Reservations"]:
+                return instance["Instances"][0]["PublicIpAddress"]
+        else:
+            return print("Host Not Found")
+    except TypeError as e:
+        print(e)
+
+# Function that executes ssh bash command to connect to ec2 instance
+def RunSSH(public_ip):
+    subprocess.run(['ssh','ec2-user@{}'.format(public_ip)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+# Main function when script is called from CLI
+if __name__ == "__main__":
+        region = sys.argv[2]
+        instance_name = sys.argv[1]
+        test_mock_ec2 = False
+        # Check to see if mock variable is set to True
+        if test_mock_ec2 == True:
+            with mock_ec2():
+                print("Creating Mock EC2 Instance with Name: {} in region: {}".format(instance_name, region))
+                CreateEC2Instance(instance_name,region)
+                print("Finding EC2 Instance with Tag Name: {} in region: {}".format(instance_name, region))
+                public_ip = DescribeEC2Instance(instance_name, region)
+                print("Returning response:", public_ip)
+                print("SSHing into machine: {} with user ec2-user".format(public_ip))
+                RunSSH(public_ip)
+        else:
+            public_ip = DescribeEC2Instance(instance_name, region)
+            RunSSH(public_ip)
+
