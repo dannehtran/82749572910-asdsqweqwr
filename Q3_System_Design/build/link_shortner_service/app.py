@@ -16,10 +16,14 @@ class RegexConverter(BaseConverter):
 app.url_map.converters['regex'] = RegexConverter
 
 # AWS Client
-AWS_CLIENT = boto3.client('dynamodb')
+AWS_CLIENT = boto3.client('dynamodb', region_name="us-east-1")
 
 # Redis Cache
 redis_cache = {}
+
+@app.route('/')
+def Alive():
+    return("Flask App Is Live") 
 
 # Web app route to create a shorten url using POST
 @app.route('/newurl', methods=['POST'])
@@ -42,7 +46,7 @@ def SetDynamoDB(data):
     table_name = 'short-my-url-tf'
 
     try:
-        host = "http:127.0.0.1/"
+        host = "https://shortenurl.org/"
         response = AWS_CLIENT.put_item(
             TableName=table_name,
             Item={
@@ -84,3 +88,5 @@ def GetShortenURL(uid):
             return "Error: /{} does not exist. ".format(str(uid))
     except ClientError as e:
         return "Client Error."
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=3000)
