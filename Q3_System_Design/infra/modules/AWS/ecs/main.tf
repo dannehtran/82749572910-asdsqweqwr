@@ -7,12 +7,12 @@ resource "aws_ecs_service" "ecs-service-poc" {
   cluster         = aws_ecs_cluster.ecs-cluster-poc.id
   task_definition = aws_ecs_task_definition.ecs-task-definition-poc.arn
   scheduling_strategy  = "REPLICA"
-  launch_type     = "EC2"
+  launch_type     = "FARGATE"
   desired_count = 2
 
   network_configuration {
-    subnets          = var.aws_private_subnets
-    assign_public_ip = false
+    subnets          = var.aws_public_subnets
+    assign_public_ip = true
     security_groups = var.security_groups
   }
 
@@ -27,7 +27,7 @@ resource "aws_ecs_service" "ecs-service-poc" {
 resource "aws_ecs_task_definition" "ecs-task-definition-poc" {
   family                   = "ecs-task-definition-poc"
   network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
+  requires_compatibilities = ["FARGATE"]
   memory                   = "1024"
   cpu                      = "512"
   execution_role_arn       = var.iam_role_arn
@@ -45,7 +45,15 @@ resource "aws_ecs_task_definition" "ecs-task-definition-poc" {
       {
         "containerPort": 3000
       }
-    ]
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${var.cloudwatch_lg}",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
   }
 ]
 EOF

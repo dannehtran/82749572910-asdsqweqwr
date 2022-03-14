@@ -1,4 +1,4 @@
-variable aws_private_subnets {
+variable aws_public_subnets {
 }
 
 variable security_groups {

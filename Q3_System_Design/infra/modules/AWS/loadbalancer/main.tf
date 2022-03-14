@@ -2,7 +2,7 @@ resource "aws_alb" "application_load_balancer" {
   name               = "url-shortener-alb"
   internal           = false
   load_balancer_type = "application"
-  subnets            = var.aws_private_subnets
+  subnets            = var.aws_public_subnets
   security_groups    = var.security_groups
 }
 

@@ -1,5 +1,7 @@
 resource "aws_vpc" "vpc" {
     cidr_block = "10.0.0.0/16"
+    enable_dns_support = true
+    enable_dns_hostnames = true
     tags       = {
         Name = "POC-VPC"
     }
@@ -25,18 +27,6 @@ resource "aws_subnet" "pub_2_subnet" {
     availability_zone = data.aws_availability_zones.available.names[1]
 }
 
-resource "aws_subnet" "priv_1_subnet" {
-    vpc_id                  = aws_vpc.vpc.id
-    cidr_block              = "10.0.30.0/24"
-    availability_zone = data.aws_availability_zones.available.names[0]
-}
-
-resource "aws_subnet" "priv_2_subnet" {
-    vpc_id                  = aws_vpc.vpc.id
-    cidr_block              = "10.0.40.0/24"
-    availability_zone = data.aws_availability_zones.available.names[1]
-}
-
 resource "aws_route_table" "public" {
     vpc_id = aws_vpc.vpc.id
 
@@ -55,4 +45,3 @@ resource "aws_route_table_association" "route_table_public_2" {
     subnet_id      = aws_subnet.pub_2_subnet.id
     route_table_id = aws_route_table.public.id
 }
-

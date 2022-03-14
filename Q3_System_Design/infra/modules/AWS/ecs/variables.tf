@@ -8,7 +8,7 @@ variable iam_role_arn {
     description = "The AWS Role to run ECS tasks"
 }
 
-variable aws_private_subnets {
+variable aws_public_subnets {
 }
 
 variable security_groups {
@@ -18,5 +18,9 @@ variable lb_target_arn {
 }
 
 variable lb_listener {
-    
+
+}
+
+variable cloudwatch_lg {
+
 }
