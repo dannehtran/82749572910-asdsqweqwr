@@ -31,3 +31,4 @@ Must install all of the following tools:
             9. 1 x ECS Cluster
             10. 1 x Autoscaling for ECS Cluster
             11. 1 x Cloudwatch Logging
+            12. 1 x DynamoDB Table (For apps DB)
